@@ -1,16 +1,18 @@
 defmodule PastexWeb.ContentResolver do
   alias Pastex.Content
 
+  alias Absinthe.Relay
+
   ### QUERIES
 
   # Naming scheme more akin to phoenix controllers... less hierarchical naming...
   # ContentResolver does not really belong to something called Resolvers...
   # Reinforce idea that resolvers are functionally very analogous to controllers...
 
-  def list_pastes(_, _, %{context: context}) do
-    current_user = context[:current_user]
-    IO.puts("Executing pastes...")
-    {:ok, Content.list_pastes(current_user)}
+  def list_pastes(_, args, %{context: context}) do
+    context[:current_user]
+    |> Content.query_pastes()
+    |> Relay.Connection.from_query(&Pastex.Repo.all/1, args)
   end
 
   # Yay, actually using args...

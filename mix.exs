@@ -46,7 +46,8 @@ defmodule Pastex.Mixfile do
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       {:comeonin_ecto_password, "~> 2.1"},
-      {:pbkdf2_elixir, "~> 0.12.0"}
+      {:pbkdf2_elixir, "~> 0.12.0"},
+      {:apollo_tracing, "~> 0.4.0"}
     ]
   end
 

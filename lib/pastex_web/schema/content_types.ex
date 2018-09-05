@@ -1,10 +1,37 @@
 defmodule PastexWeb.Schema.ContentTypes do
   use Absinthe.Schema.Notation
+  use Absinthe.Relay.Schema.Notation, :modern
 
   alias PastexWeb.ContentResolver
 
+  # async resolution... so we can execute queries concurrently...
+  import Absinthe.Resolution.Helpers, only: [async: 1]
+
   # Note that Notation deliberately does not give us query, mutation, and subscription
   # to avoid multiple conflicting defs for top-level objects...
+
+  # Relay gives us limit, cursors, etc. for FREEEEEE
+  # introduces new `connection` concept, nice mapping directly from Ecto...
+  # Relay.Connection.from_query...
+
+  def get_author(%{author_id: nil}, _, _) do
+    {:ok, nil}
+  end
+
+  def get_author(%{author_id: id} = paste, _, _) do
+    # SHAZAM, now getting user is async!!!
+
+    async(fn ->
+      {:ok, Pastex.Identity.get_user(paste.author_id)}
+    end)
+    |> IO.inspect()
+  end
+
+  # THIRD POSSIBLE RETURN TUPLE: {:middleware, ...}
+  # execution is handed off to e.g. async middelware to get the actual final return value...
+  # Refer to `Absinthe.Middelware.Async` to examine how to write your own middleware that mucks
+  # with resolution
+
 
   # Custom object type
   @desc "This is the description for blob(s) of pasted code. Note this is a @desc, not a @doc"
@@ -18,13 +45,10 @@ defmodule PastexWeb.Schema.ContentTypes do
     field :name, non_null(:string)
 
     field :author, :user do
+      complexity 100
+
       # Anonymous function with multiple cases...
-      resolve(fn
-        %{author_id: nil}, _, _ ->
-          {:ok, nil}
-        paste, _, _ ->
-          {:ok, Pastex.Identity.get_user(paste.author_id)}
-      end)
+      resolve &get_author/3
     end
 
     field :visibility, :string
@@ -75,8 +99,17 @@ defmodule PastexWeb.Schema.ContentTypes do
   end
 
 
+  connection(node_type: :paste)
+
+
   object :content_queries do
-    field :pastes, list_of(non_null(:paste)) do
+    connection field :pastes, node_type: :paste do
+      # Hooray compexlity analysis!!!
+
+      complexity fn args, child_complexity ->
+        trunc((1 + args[:first] * 0.1) * child_complexity)
+      end
+
       resolve &ContentResolver.list_pastes/3
     end
   end
@@ -101,6 +134,7 @@ defmodule PastexWeb.Schema.ContentTypes do
     field :name, non_null(:string)
     field :description, :string
     # files can't be null, and the list can't be null
+    field :visibility, :string
     field :files, non_null(list_of(non_null(:file_input)))
   end
 

@@ -33,7 +33,7 @@ defmodule PastexWeb.Middleware.Auth do
     current_user = resolution.context[:current_user]
 
     if Identity.authorized?(entity, key, current_user) do
-      IO.puts("we are authorized to see #{key}")
+#      IO.puts("we are authorized to see #{key}")
       resolution
     else
       # Could store auth result metadata to determine rule about whether

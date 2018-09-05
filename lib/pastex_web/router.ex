@@ -3,6 +3,8 @@ defmodule PastexWeb.Router do
 
   pipeline :api do
     plug(:accepts, ["json"])
+    # Add plug for handling session tokens for absinthe...
+    plug(PastexWeb.Context)
   end
 
   # Got rid of namespacing to PastexWeb...

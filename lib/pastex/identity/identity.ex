@@ -7,6 +7,17 @@ defmodule Pastex.Identity do
   alias Pastex.Repo
 
   alias Pastex.Identity.User
+  alias Comeonin.Ecto.Password
+
+  def authenticate(email, password) do
+    user = Repo.get_by(User, email: email)
+
+    if user && Password.valid?(password, user.password) do
+      {:ok, user}
+    else
+      {:error, "unauthorized"}
+    end
+  end
 
   @doc """
   Returns the list of users.
@@ -35,7 +46,11 @@ defmodule Pastex.Identity do
       ** (Ecto.NoResultsError)
 
   """
-  def get_user!(id), do: Repo.get!(User, id)
+  def get_user(id) do
+    Repo.get(User, id)
+  end
+
+  # Could also use fetch, etc...
 
   @doc """
   Creates a user.

@@ -17,6 +17,18 @@ defmodule PastexWeb.Schema.ContentTypes do
     field :id, non_null(:id)
     field :name, non_null(:string)
 
+    field :author, :user do
+      # Anonymous function with multiple cases...
+      resolve(fn
+        %{author_id: nil}, _, _ ->
+          {:ok, nil}
+        paste, _, _ ->
+          {:ok, Pastex.Identity.get_user(paste.author_id)}
+      end)
+    end
+
+    field :visibility, :string
+
     field :excited_name, non_null(:string) do
       resolve(fn parent, _, _ ->
         {:ok, String.upcase(parent.name)}

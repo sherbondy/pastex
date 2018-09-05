@@ -1,7 +1,28 @@
 # Note: These need to be idempotent so we can run them automatically
 # when running docker-compose.
 
-alias Pastex.{Repo, Content}
+alias Pastex.{Repo, Content, Identity}
+
+
+users = [
+  %{
+    name: "Ben Wilson",
+    email: "ben@localhost.com",
+    password: "abc123"
+  },
+  %{
+    name: "Rich Kilmer",
+    email: "rich@localhost.com",
+    password: "abc123"
+  }
+]
+
+[user1, user2] =
+  Enum.map(users, fn params ->
+    {:ok, user} = params |> Identity.create_user()
+    user
+  end)
+
 
 pastes = [
   %Content.Paste{

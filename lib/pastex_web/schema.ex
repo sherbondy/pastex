@@ -3,7 +3,7 @@ defmodule PastexWeb.Schema do
 
   alias PastexWeb.ContentResolver
 
-  import_types PastexWeb.Schema.ContentTypes
+  import_types PastexWeb.Schema.{ContentTypes, IdentityTypes}
 
   # Every field has a resolver! If you don't specify one, then we default to Map.get() essentially...
   # Most of the course is just about making the resolvers work in a more pleasant way...
@@ -33,13 +33,14 @@ defmodule PastexWeb.Schema do
     # Nice nesting for code structure...
 
     import_fields :content_queries
-
+    import_fields :identity_queries
   end
 
   mutation do
     # same... :content_mutations defined in ContentTypes
 
     import_fields :content_mutations
+    import_fields :identity_mutations
   end
 
   # UNIFORM REPR... REALTIME UPDATES AND HTTP REQS...

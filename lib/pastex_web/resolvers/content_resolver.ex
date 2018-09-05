@@ -7,9 +7,10 @@ defmodule PastexWeb.ContentResolver do
   # ContentResolver does not really belong to something called Resolvers...
   # Reinforce idea that resolvers are functionally very analogous to controllers...
 
-  def list_pastes(_, _, _) do
+  def list_pastes(_, _, %{context: context}) do
+    current_user = context[:current_user]
     IO.puts("Executing pastes...")
-    {:ok, Content.list_pastes()}
+    {:ok, Content.list_pastes(current_user)}
   end
 
   # Yay, actually using args...
@@ -50,8 +51,16 @@ defmodule PastexWeb.ContentResolver do
 
 
   # A mutation! A new kind of thing...
-  def create_paste(_, %{input: input} = arguments, _) do
+  def create_paste(_, %{input: input} = arguments, %{context: context}) do
     IO.inspect(arguments)
+
+    input =
+      case context do
+        %{current_user: %{id: id}} ->
+          Map.put(input, :author_id, id)
+        _ ->
+          input
+      end
 
     case Content.create_paste(input) do
       {:ok, paste} ->

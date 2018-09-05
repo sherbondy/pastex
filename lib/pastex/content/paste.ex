@@ -7,6 +7,7 @@ defmodule Pastex.Content.Paste do
     field :description, :string
     field :name, :string
     field :author_id, :id
+    field :visibility, :string, null: false, default: "public"
 
     has_many :files, Pastex.Content.File
 
@@ -16,7 +17,7 @@ defmodule Pastex.Content.Paste do
   @doc false
   def changeset(paste, attrs) do
     paste
-    |> cast(attrs, [:name, :description])
+    |> cast(attrs, [:author_id, :name, :description, :visibility])
     |> cast_assoc(:files)
     |> validate_required([:name, :description])
   end

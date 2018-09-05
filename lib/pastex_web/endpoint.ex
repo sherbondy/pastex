@@ -1,5 +1,9 @@
 defmodule PastexWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :pastex
+  # Hooray absinthe support... (inject requisite subs. callbacks)
+  use Absinthe.Phoenix.Endpoint
+
+  # Where all HTTP requests actually start... central dispatch point for TTP...
 
   socket("/socket", PastexWeb.UserSocket)
 

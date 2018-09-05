@@ -19,18 +19,41 @@ defmodule PastexWeb.Middleware.Auth do
 
   # More general version of our previous specific authorized resolver for the email field, now applied to all fields!
 
+
+  # Can also have auth around subscriptions... what differs is we cannot rely on http header auth token...
+
+
   @impl true
   def call(resolution, _) do
     # source is an older name that corresponds to "parent" in resolve fn (first arg)
     entity = resolution.source
     # dynamically look up the name of the field we are currently on, e.g. :email, etc...
-    key = resolution.definition.schema_node.identifier
+    schema_node = resolution.definition.schema_node
+    key = schema_node.identifier
     current_user = resolution.context[:current_user]
 
     if Identity.authorized?(entity, key, current_user) do
+      IO.puts("we are authorized to see #{key}")
       resolution
     else
-      Absinthe.Resolution.put_result(resolution, {:error, "Unauthorized"})
+      # Could store auth result metadata to determine rule about whether
+      # we should return nil or throw an error based on whether a user is authoried
+      # to see a field...
+
+      # Metadata key on fields...
+      auth_result = Absinthe.Type.meta(schema_node, :auth)
+
+      IO.puts("auth result:")
+      IO.inspect(auth_result)
+
+      error_or_nil =
+        if auth_result == :use_nil do
+          {:ok, nil}
+        else
+          {:error, "unauthorized"}
+        end
+
+      Absinthe.Resolution.put_result(resolution, error_or_nil)
     end
   end
 

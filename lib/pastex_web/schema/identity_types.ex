@@ -64,7 +64,7 @@ defmodule PastexWeb.Schema.IdentityTypes do
     field :name, non_null(:string)
     # Resolver on email to determine whether we should display it based on whether the user
     # is the current user... only show them their own email for their own documents...
-    field :email, :string
+    field :email, :string, meta: [auth: :use_nil]
   end
 
   # formerly had a complicated auth resolver for email, now replaced logic by PastexWeb.Middleware.Auth

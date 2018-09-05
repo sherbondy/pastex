@@ -19,6 +19,9 @@ defmodule Pastex.Identity do
   # But we could do better, extract authorized? and universally apply it via MIDDLEWARE
   # So we do not have to remember to call authorized? in the resolver for every single field...
 
+  # Could alternatively make auth opt-in... make catch-all default false and then supply conditions
+  # that allow a field to be exposed...
+
   def authorized?(%User{id: id}, :email, %User{id: id}) do
     true
   end

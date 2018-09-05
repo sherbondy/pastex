@@ -9,6 +9,31 @@ defmodule Pastex.Identity do
   alias Pastex.Identity.User
   alias Comeonin.Ecto.Password
 
+
+  # Equality handled at the pattern match level, amazing!!!
+  # One-sweep pattern match happens at the arg level...
+
+  # Note that we are not do any database queries here...
+  # Can easily expand authorization logic to other fields now, not just email...
+
+  # But we could do better, extract authorized? and universally apply it via MIDDLEWARE
+  # So we do not have to remember to call authorized? in the resolver for every single field...
+
+  def authorized?(%User{id: id}, :email, %User{id: id}) do
+    true
+  end
+
+  # If current user does not match requested user email, not authorized
+  def authorized?(_, :email, _) do
+    false
+  end
+
+  # For other fields, fine, allow viewing
+  def authorized?(_, _, _) do
+    true
+  end
+
+
   def authenticate(email, password) do
     user = Repo.get_by(User, email: email)
 

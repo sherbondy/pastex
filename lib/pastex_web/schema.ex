@@ -91,4 +91,11 @@ defmodule PastexWeb.Schema do
   # Can analyze query before we actually execute it... the query is a data structure...
   # Use instrumentation, store commonly used queries to identify what we should spend effort optimizing...
   # See when we can deprecate fields based on usage...
+
+
+
+  def middleware(middleware, _field, _obj) do
+    [PastexWeb.Middleware.Auth | middleware]
+  end
+
 end

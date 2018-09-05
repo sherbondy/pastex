@@ -49,21 +49,26 @@ defmodule PastexWeb.Schema.IdentityTypes do
   # so your errors are more machine-readable...
   # Could have middleware handle ecto errors nicely... Kronky ecto errors to Absinthe errors solution.
 
+  # Absinthe.Resolution.project(resolution)
+  # project gives you flattened resolved fields...
+  # Peek into child queries and pre-fetch...
+  # But now we have DataLoader, so that is probably a better option for query optimization...
+
+  # How can we consolidate our auth business logic & resolver logic via MIDDLEWARE?
+  # Let's do it!
+
+  # Fields have meta with key-value information that you can use ...
+  # DataLoader and batching to avoid excessive queries...
+
   object :user do
     field :name, non_null(:string)
     # Resolver on email to determine whether we should display it based on whether the user
     # is the current user... only show them their own email for their own documents...
-    field :email, :string do
-      resolve(fn %{id: id} = user, _, %{context: context} ->
-        case context do
-          # Pattern match on user id
-          %{current_user: %{id: ^id}} ->
-            {:ok, user.email}
-          _ ->
-            {:error, "Unauthorized"}
-        end
-      end)
-    end
+    field :email, :string
   end
+
+  # formerly had a complicated auth resolver for email, now replaced logic by PastexWeb.Middleware.Auth
+  # resolve macro IS a middleware!!!
+  # `resolve` = middleware Absinthe.Resolution, your_resolve_fn
 
 end
